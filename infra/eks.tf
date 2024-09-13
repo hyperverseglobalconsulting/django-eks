@@ -11,12 +11,9 @@ resource "aws_eks_cluster" "public" {
   }
 
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
-  tags = merge(
-    {
+  tags = {
         Name = "${var.cluster_name}"
-    },
-    var.tags_dev
-  )
+    }
 
   depends_on = [
     aws_cloudwatch_log_group.eks_cluster_logs
