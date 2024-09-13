@@ -33,7 +33,6 @@ jobs:
       TF_VAR_public_subnet_name_prefix: ${{ vars.PUBLIC_SUBNET_NAME_PREFIX }}
       TF_VAR_ng_ondemand: ${{ vars.NG_ONDEMAND }}
       TF_VAR_ondemand_instance_types: ${{ vars.ONDEMAND_INSTANCE_TYPES }}
-      TF_VAR_private_cidr_blocks: ${{ vars.PRIVATE_CIDR_BLOCKS }}
       TF_VAR_public_cidr_blocks: ${{ vars.PUBLIC_CIDR_BLOCKS }}
       TF_VAR_vpc_cidr: ${{ vars.VPC_CIDR }}
       TF_VAR_registry_org: ${{ vars.GIT_ORG }}
@@ -90,7 +89,7 @@ jobs:
     # Shows the details of the execution plan for Terraform
     - name: Terraform Show - Root
       run: terraform show tfplan.out
-      working-directory: ./terraform_autoscalar
+      working-directory: ./infra
 
     # Applies the Terraform plan to create or update infrastructure
     # -auto-approve: Automatically approves any changes to avoid manual confirmation
