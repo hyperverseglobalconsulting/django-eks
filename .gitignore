@@ -5,6 +5,7 @@ bkp/
 # Ignore all dotfiles except .gitignore
 .*
 !.gitignore
+!.github
 
 # Ignore PEM, KEY, and other sensitive files
 *.pem

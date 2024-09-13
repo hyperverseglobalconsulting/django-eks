@@ -1,16 +1,12 @@
-name: 'Terraform Deploy'
+name: 'Terraform Destroy'
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '.github/workflows/terraform-destroy.yaml'
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - '.github/workflows/terraform-destroy.yaml'
+  workflow_dispatch:
+    inputs:
+      end_task:
+        description: 'Override the last task to run (1=root)'
+        required: true
+        default: '1'
 
 permissions:
   contents: read
@@ -62,43 +58,27 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 
-    # Terraform Init, Plan, and Apply for the root directory
-    - name: Prepare Main Terraform Configuration -- Root
-      run: |
-        envsubst < ./main.tf.tpl > ./main.tf
-      working-directory: ./infra
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init - Root
       run: terraform init
       working-directory: ./infra
+      if: ${{ inputs.end_task == '1' }}
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format - Root
-      run: terraform fmt -check
+    # Generates an execution plan for Terraform destroy
+    - name: Terraform Plan Destroy - Root
+      run: terraform plan -destroy -input=false -refresh=true -out=tfplan_destroy.out
       working-directory: ./infra
+      if: ${{ inputs.end_task == '1' }}
 
-    # Validates the Terraform configuration files to ensure they are syntactically valid and internally consistent
-    # This step helps catch configuration errors before applying the plan
-    - name: Terraform Validate - Root
-      run: terraform validate
+    # Shows execution for Terraform destroy
+    - name: Terraform Show Destroy - Root
+      run: terraform show tfplan_destroy.out
       working-directory: ./infra
+      if: ${{ inputs.end_task == '1' }}
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan - Root
-      run: terraform plan -input=false -refresh=true -out=tfplan.out
+    # Manually trigger Terraform destroy
+    - name: Terraform Destroy
+      run: terraform apply -destroy -auto-approve -input=false tfplan_destroy.out
       working-directory: ./infra
+      if: ${{ inputs.end_task == '1' }}
 
-    # Shows the details of the execution plan for Terraform
-    - name: Terraform Show - Root
-      run: terraform show tfplan.out
-      working-directory: ./terraform_autoscalar
-
-    # Applies the Terraform plan to create or update infrastructure
-    # -auto-approve: Automatically approves any changes to avoid manual confirmation
-    - name: Terraform Apply
-      run: terraform apply -auto-approve -input=false tfplan.out
-      working-directory: ./infra
