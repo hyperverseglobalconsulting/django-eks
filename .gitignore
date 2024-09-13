@@ -1,0 +1,27 @@
+# Ignore backup directories and files
+bkp/
+*.bkp
+
+# Ignore all dotfiles except .gitignore
+.*
+!.gitignore
+
+# Ignore PEM, KEY, and other sensitive files
+*.pem
+*.key
+*.crt
+*.p12
+
+# Ignore other common unwanted files
+*.log
+*.sqlite3
+*.pyc
+__pycache__/
+*.db
+*.env
+*.DS_Store
+
+# Ignore directories created by IDEs
+.idea/
+.vscode/
+
