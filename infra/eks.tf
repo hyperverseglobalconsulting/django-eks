@@ -31,20 +31,20 @@ resource "aws_cloudwatch_log_group" "eks_cluster_logs" {
 
 resource "aws_eks_node_group" "system" {
   cluster_name    = aws_eks_cluster.public.name
-  node_group_name = var.ng_general_ondemand
+  node_group_name = var.ng_ondemand
   node_role_arn   = aws_iam_role.eks_worker.arn
   subnet_ids      = [for subnet in aws_subnet.public : subnet.id]
   ami_type        = "AL2_x86_64"
 
   scaling_config {
-    desired_size = var.general_ondemand_desired_nodes
-    max_size     = var.general_ondemand_max_nodes
+    desired_size = var.ondemand_desired_nodes
+    max_size     = var.ondemand_max_nodes
     min_size     = 1
   }
 
-  instance_types = var.general_ondemand_instance_types
+  instance_types = var.ondemand_instance_types
   tags = {
-      Name                = "${aws_eks_cluster.public.name}-${var.ng_general_ondemand}-Node"
+      Name                = "${aws_eks_cluster.public.name}-${var.ng_ondemand}-Node"
       PropagateAtLaunch   = true
     }
 }

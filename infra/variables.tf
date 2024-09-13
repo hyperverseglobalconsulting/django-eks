@@ -19,7 +19,7 @@ variable "aws_secret_access_key" {
   sensitive   = true
 }
 
-variable "github_org" {
+variable "registry_org" {
   description = "GitHub organization name"
   type        = string
 }
@@ -47,12 +47,6 @@ variable "vpc_cidr" {
   #default     = "10.0.0.0/16"
 }
 
-variable "public_sg" {
-  description = "Name for the Public Security Group for backend servers"
-  type        = string
-  #default     = "public_sg"
-}
-
 variable "bucket_name" {
   description = "The S3 bucket name"
   type        = string
@@ -78,22 +72,22 @@ variable "public_route_table_name" {
   type        = string
 }
 
-variable "ng_general_ondemand" {
-  description = "The name of the node group for the Kubernetes control plane"
+variable "ng_ondemand" {
+  description = "The name of the node group for the node group"
   type        = string
 }
 
-variable "general_ondemand_instance_types" {
-  description = "A list of instance types for the general workload node group"
+variable "ondemand_instance_types" {
+  description = "A list of instance types for the node group"
   type        = list(string)
 }
 
-variable "general_ondemand_max_nodes" {
-  description = "The max nodes of the node group for the general workload comprising of ondemand instances"
+variable "ondemand_max_nodes" {
+  description = "The max nodes of the node group for the ondemand instances"
   type        = string
 }
 
-variable "general_ondemand_desired_nodes" {
-  description = "The desired nodes of the node group for the general workload comprising of ondemand instances"
+variable "ondemand_desired_nodes" {
+  description = "The desired nodes of the node group for the ondemand instances"
   type        = string
 }
