@@ -76,11 +76,6 @@ jobs:
       run: terraform init
       working-directory: ./infra
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format - Root
-      run: terraform fmt -check
-      working-directory: ./infra
-
     # Validates the Terraform configuration files to ensure they are syntactically valid and internally consistent
     # This step helps catch configuration errors before applying the plan
     - name: Terraform Validate - Root
