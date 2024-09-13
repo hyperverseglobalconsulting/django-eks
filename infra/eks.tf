@@ -1,7 +1,7 @@
 resource "aws_eks_cluster" "public" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster.arn
-  version  = "1.28"
+  version  = "1.30"
 
   vpc_config {
     subnet_ids = [for subnet in aws_subnet.public : subnet.id]
@@ -34,7 +34,7 @@ resource "aws_eks_node_group" "system" {
   node_group_name = var.ng_general_ondemand
   node_role_arn   = aws_iam_role.eks_worker.arn
   subnet_ids      = [for subnet in aws_subnet.public : subnet.id]
-  ami_type        = "AL2023_x86_64_STANDARD"
+  ami_type        = "AL2_x86_64"
 
   scaling_config {
     desired_size = var.general_ondemand_desired_nodes
