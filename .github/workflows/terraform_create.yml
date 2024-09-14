@@ -150,7 +150,7 @@ jobs:
       working-directory: ./infra/kubernetes
 
     - name: Get .kubeconfig from eks cluster
-      run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name $TF_VAR_cluster_name
+      run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name $TF_VAR_cluster_name  --kubeconfig ./.kubeconfig
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan - Kubernetes
