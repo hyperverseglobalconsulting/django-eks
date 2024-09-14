@@ -111,14 +111,14 @@ jobs:
     - name: Terraform Plan Destroy - Root
       if: ${{ github.event.inputs.end_task <= 1 }}
       run: terraform plan -destroy -input=false -refresh=true -out=tfplan_destroy.out
-      working-directory: ./infra/kubernetes
+      working-directory: ./infra
       env:
         TF_VAR_kubeconfig: ${{ github.workspace }}/.kubeconfig
 
     - name: Terraform Show Destroy Plan - Root
       if: ${{ github.event.inputs.end_task <= 1 }}
       run: terraform show tfplan_destroy.out
-      working-directory: ./infra/kubernetes
+      working-directory: ./infra
 
     - name: Terraform Destroy - Root
       if: ${{ github.event.inputs.end_task <= 1 }}
