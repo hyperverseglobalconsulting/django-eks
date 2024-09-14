@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       end_task:
-        description: 'Override the last task to run (1=root)'
+        description: 'Override the last task to run (1=root, 2=kubernetes)'
         required: true
         default: '1'
 
@@ -58,27 +58,67 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 
+    - name: Get .kubeconfig from eks cluster
+      run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name $TF_VAR_cluster_name  --kubeconfig ./.kubeconfig
+
+    - name: Prepare Main Terraform Configuration -- Kubernetes
+      if: ${{ github.event.inputs.end_task <= 2 }}
+      run: |
+        envsubst < ./main.tf.tpl > ./main.tf
+      working-directory: ./infra/kubernetes
+
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init - Root
+    - name: Terraform Init - Kubernetes
+      if: ${{ github.event.inputs.end_task <= 2 }}
       run: terraform init
-      working-directory: ./infra
-      if: ${{ inputs.end_task == '1' }}
+      working-directory: ./infra/kubernetes
 
     # Generates an execution plan for Terraform destroy
     - name: Terraform Plan Destroy - Root
+      if: ${{ github.event.inputs.end_task <= 2 }}
       run: terraform plan -destroy -input=false -refresh=true -out=tfplan_destroy.out
-      working-directory: ./infra
-      if: ${{ inputs.end_task == '1' }}
+      working-directory: ./infra/kubernetes
+      env:
+        TF_VAR_kubeconfig: ${{ github.workspace }}/.kubeconfig
 
     # Shows execution for Terraform destroy
     - name: Terraform Show Destroy - Root
+      if: ${{ github.event.inputs.end_task <= 2 }}
       run: terraform show tfplan_destroy.out
-      working-directory: ./infra
-      if: ${{ inputs.end_task == '1' }}
+      working-directory: ./infra/kubernetes
 
     # Manually trigger Terraform destroy
     - name: Terraform Destroy
+      if: ${{ github.event.inputs.end_task <= 2 }}
       run: terraform apply -destroy -auto-approve -input=false tfplan_destroy.out
-      working-directory: ./infra
-      if: ${{ inputs.end_task == '1' }}
+      working-directory: ./infra/kubernetes
+      env:
+        TF_VAR_kubeconfig: ${{ github.workspace }}/.kubeconfig
 
+    - name: Prepare Main Terraform Configuration -- Root
+      if: ${{ github.event.inputs.end_task <= 1 }}
+      run: |
+        envsubst < ./main.tf.tpl > ./main.tf
+      working-directory: ./infra
+
+    - name: Terraform Init - Root
+      if: ${{ github.event.inputs.end_task <= 1 }}
+      run: terraform init
+      working-directory: ./infra
+
+    - name: Terraform Plan Destroy - Root
+      if: ${{ github.event.inputs.end_task <= 1 }}
+      run: terraform plan -destroy -input=false -refresh=true -out=tfplan_destroy.out
+      working-directory: ./infra/kubernetes
+      env:
+        TF_VAR_kubeconfig: ${{ github.workspace }}/.kubeconfig
+
+    - name: Terraform Show Destroy Plan - Root
+      if: ${{ github.event.inputs.end_task <= 1 }}
+      run: terraform show tfplan_destroy.out
+      working-directory: ./infra/kubernetes
+
+    - name: Terraform Destroy - Root
+      if: ${{ github.event.inputs.end_task <= 1 }}
+      run: terraform apply -destroy -auto-approve tfplan_destroy.out
+      working-directory: ./infra

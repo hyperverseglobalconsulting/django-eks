@@ -96,3 +96,77 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve -input=false tfplan.out
       working-directory: ./infra
+
+  terraform_kubernetes:
+    name: 'Terraform Kubernetes'
+    environment: ${{ github.ref_name }}
+    needs: terraform_root
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_cluster_name: ${{ vars.CLUSTER_NAME }}
+      TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_region: ${{ vars.AWS_REGION }}
+      TF_VAR_bucket_name: ${{ vars.BUCKET_NAME }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Set up Kubectl for AMD64
+      run: |
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+
+    # Repeat the Init, Plan, Apply steps for the istio directory
+    - name: Prepare Kubernetes Terraform Configuration -- Kubernetes
+      run: |
+        envsubst < ./main.tf.tpl > ./main.tf
+      working-directory: ./infra/kubernetes
+
+    - name: Terraform Init - Kubernetes
+      run: terraform init
+      working-directory: ./infra/kubernetes
+
+    # Validates the Terraform configuration files to ensure they are syntactically valid and internally consistent
+    # This step helps catch configuration errors before applying the plan
+    - name: Terraform Validate - Root
+      run: terraform validate
+      working-directory: ./infra/kubernetes
+
+    - name: Get .kubeconfig from eks cluster
+      run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name $TF_VAR_cluster_name
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan - Kubernetes
+      run: terraform plan -input=false -refresh=true -out=tfplan.out
+      working-directory: ./infra/kubernetes
+      env:
+        TF_VAR_kubeconfig: ${{ github.workspace }}/.kubeconfig
+
+    # Shows the details of the execution plan for Terraform
+    - name: Terraform Show - Root
+      run: terraform show tfplan.out
+      working-directory: ./infra/kubernetes
+      env:
+        TF_VAR_kubeconfig: ${{ github.workspace }}/.kubeconfig
+
+    # Applies the Terraform plan to create or update infrastructure
+    # -auto-approve: Automatically approves any changes to avoid manual confirmation
+    - name: Terraform Apply - Kubernetes
+      run: terraform apply -auto-approve tfplan.out
+      working-directory: ./infra/kubernetes
+      env:
+        TF_VAR_kubeconfig: ${{ github.workspace }}/.kubeconfig
