@@ -5,6 +5,6 @@ resource "helm_release" "descheduler" {
   namespace  = "kube-system"
 
   values = [templatefile("${path.module}/descheduler-values.yaml.tpl", {
-    nodegroup = aws_eks_node_group.ondemand.node_group_name
+    nodegroup = var.ng_ondemand
   })]
 }
