@@ -27,15 +27,15 @@ jobs:
       TF_VAR_igw_name: ${{ vars.IGW_NAME }}
       TF_VAR_public_route_table_name: ${{ vars.PUBLIC_ROUTE_TABLE_NAME }}
       TF_VAR_public_subnet_name_prefix: ${{ vars.PUBLIC_SUBNET_NAME_PREFIX }}
-      TF_VAR_ng_general_ondemand: ${{ vars.NG_GENERAL_ONDEMAND }}
-      TF_VAR_general_ondemand_instance_types: ${{ vars.GENERAL_ONDEMAND_INSTANCE_TYPES }}
+      TF_VAR_ng_ondemand: ${{ vars.NG_ONDEMAND }}
+      TF_VAR_ondemand_instance_types: ${{ vars.ONDEMAND_INSTANCE_TYPES }}
       TF_VAR_private_cidr_blocks: ${{ vars.PRIVATE_CIDR_BLOCKS }}
       TF_VAR_public_cidr_blocks: ${{ vars.PUBLIC_CIDR_BLOCKS }}
       TF_VAR_vpc_cidr: ${{ vars.VPC_CIDR }}
       TF_VAR_registry_org: ${{ vars.GIT_ORG }}
       TF_VAR_infra_repo_name: ${{ vars.INFRA_REPO_NAME}}
-      TF_VAR_general_ondemand_max_nodes: ${{vars.GENERAL_ONDEMAND_MAX_NODES}}
-      TF_VAR_general_ondemand_desired_nodes: ${{vars.GENERAL_ONDEMAND_DESIRED_NODES}}
+      TF_VAR_ondemand_max_nodes: ${{vars.ONDEMAND_MAX_NODES}}
+      TF_VAR_ondemand_desired_nodes: ${{vars.ONDEMAND_DESIRED_NODES}}
       TF_VAR_db_username: ${{vars.DB_USERNAME}}
       TF_VAR_db_name: ${{vars.DB_NAME}}
 
