@@ -8,7 +8,7 @@ resource "helm_release" "metrics_server" {
 
   # Reference the external values file
   values = [templatefile("${path.module}/metrics-server-values.yaml.tpl", {
-    nodegroup = aws_eks_node_group.ondemand.node_group_name
+    nodegroup = var.ng_ondemand
   })]
 }
 
