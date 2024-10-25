@@ -40,6 +40,7 @@ jobs:
       TF_VAR_ondemand_max_nodes: ${{vars.ONDEMAND_MAX_NODES}}
       TF_VAR_ondemand_desired_nodes: ${{vars.ONDEMAND_DESIRED_NODES}}
 
+
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
